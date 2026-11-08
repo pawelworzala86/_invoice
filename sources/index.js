@@ -75,7 +75,7 @@ function writeText(text,config={}){
 }
 
 function writeLI(text,config={}){
-   doc.image('./images/dot.png', doc.x, doc.y+4, { width: 4.5 })
+   //doc.image('./images/dot.png', doc.x, doc.y+4, { width: 4.5 })
 
    doc.font(config.font??textFont)
 
@@ -149,78 +149,14 @@ function writeLabel(text,fontSize=fontLabel,labelOffset=4){
 
 
 
-doc.rect(0, 0, doc.page.width, doc.page.height)
-   .fill('#F3F7FD')
 
 
 
 
 
 
-doc.rect(0, 180, 165, doc.page.height)
-   .fill('#DDE9F9')
-//doc.rect(165, 0, wrapperWidth+20, 165)
-//   .fill('#ddd')
 
 
-
-
-const gradient = doc.linearGradient(20, 500, 20, doc.page.height-80) // x1,y1,x2,y2
-gradient.stop(0, '#f8fafe')   // kolor start
-gradient.stop(1, '#DDE9F9')   // kolor koniec
-
-doc.roundedRect(20, 500, doc.page.width, doc.page.height, 0)
-   .fill(gradient)
-
-
-
-
-
-doc.image('./images/avatar.png', 0, 0, { width: 165 })
-
-doc.image('./images/rightozdoba.png', 525, 0, { width: 74 })
-
-
-
-
-const topWrapperOffset = 220
-const bottomWrapperOffset = 540
-
-const shadowColor = '#ddd'
-const r = 12
-
-for (let i = 1; i <= 4; i+=0.5) {
-  doc.roundedRect(20 - i, topWrapperOffset - i, 560+i*2, bottomWrapperOffset+i*2, r)
-     .fillOpacity(shadowOpacity * i)
-     .fill(shadowColor)
-}
-doc.fillOpacity(1)
-
-doc.roundedRect(20, topWrapperOffset, 440, bottomWrapperOffset, 10)
-   .fill('#EDF3FC')
-
-
-doc.rect(30, 670, 140, 1)
-   .fill('#dddddd')
-
-
-
-for (let i = 1; i <= 2; i+=0.5) {
-  doc.roundedRect(177 - i, topWrapperOffset, 20, bottomWrapperOffset, r)
-     .fillOpacity(shadowOpacity * i)
-     .fill(shadowColor)
-}
-doc.fillOpacity(1)
-
-doc.roundedRect(180, topWrapperOffset, 400, bottomWrapperOffset, 10)
-   .fill('#FDFDFE')
-
-doc.rect(190, 670, 380, 1)
-   .fill('#dddddd')
-
-
-const defaultX = doc.x
-const defaultY = doc.y
 
 doc.x = 30
 doc.y = margin
@@ -229,7 +165,7 @@ doc.y = margin
 
 
 
-doc.y = topWrapperOffset
+
 
 const labelOffset = 4
 const contactYoffset = 4
@@ -251,7 +187,7 @@ const contactYoffset = 4
 
 
 
-
+/*
 writeLabel('Dane kontaktowe', labelLeftFontSize*1.25, labelOffset)
 
 doc.fillColor(headingsColor)
@@ -320,6 +256,7 @@ writeLine(fontDefault,'REST API, MVC, backend, refactoring',{
    textColor: grayTextColor,
 })
 
+*/
 
 
 
@@ -333,9 +270,8 @@ writeLine(fontDefault,'REST API, MVC, backend, refactoring',{
 
 
 
-
-doc.x = defaultX + 185
-doc.y = -10
+doc.x = margin
+//doc.y = -10
 
 doc.fillColor(headingsColor)
 
@@ -365,7 +301,7 @@ doc.y = doc.y + 10
 paragraph('', `Backend Developer z komercyjnym doświadczeniem w tworzeniu i utrzymaniu skalowalnych systemów backendowych oraz projektowaniu baz danych. W pracy komercyjnej odpowiadam za rozwój zaawansowanych REST API w środowiskach TypeScript/Next.js oraz PHP (MVC). Specjalizuję się w implementacji architektury API, obsłudze relacyjnych baz danych (PostgreSQL, MariaDB) oraz tworzeniu dokumentacji technicznej w OpenAPI.`)
 
 
-doc.y = topWrapperOffset
+//doc.y = margin
 
 
 writeLabel('Doświadczenie zawodowe')
