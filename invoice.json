@@ -1,0 +1,151 @@
+{
+  "faktura": {
+    "numer": "FV/2026/11/001",
+    "data_wystawienia": "2026-11-08",
+    "data_sprzedazy": "2026-11-08",
+    "miejsce_wystawienia": "Warszawa",
+    "sprzedawca": {
+      "nazwa": "Tech Solutions Sp. z o.o.",
+      "nip": "5252678901",
+      "adres": "ul. Marszałkowska 100, 00-017 Warszawa"
+    },
+    "nabywca": {
+      "nazwa": "Firma Handlowa Jan Kowalski",
+      "nip": "1130021485",
+      "adres": "ul. Złota 44, 00-120 Warszawa"
+    },
+    "pozycje": [
+      {
+        "lp": 1,
+        "nazwa_towaru_uslugi": "Laptop Biznesowy 15.6\"",
+        "pkwiu": "26.20.11.0",
+        "ilosc": 2,
+        "jednostka": "szt",
+        "cena_netto": 3500.00,
+        "wartosc_netto": 7000.00,
+        "stawka_vat": 23,
+        "kwota_vat": 1610.00,
+        "wartosc_brutto": 8610.00
+      },
+      {
+        "lp": 2,
+        "nazwa_towaru_uslugi": "Mysz bezprzewodowa",
+        "pkwiu": "26.20.16.0",
+        "ilosc": 5,
+        "jednostka": "szt",
+        "cena_netto": 80.00,
+        "wartosc_netto": 400.00,
+        "stawka_vat": 23,
+        "kwota_vat": 92.00,
+        "wartosc_brutto": 492.00
+      },
+      {
+        "lp": 3,
+        "nazwa_towaru_uslugi": "Klawiatura mechaniczna RGB",
+        "pkwiu": "26.20.16.0",
+        "ilosc": 3,
+        "jednostka": "szt",
+        "cena_netto": 250.00,
+        "wartosc_netto": 750.00,
+        "stawka_vat": 23,
+        "kwota_vat": 172.50,
+        "wartosc_brutto": 922.50
+      },
+      {
+        "lp": 4,
+        "nazwa_towaru_uslugi": "Monitor 27\" 4K UHD",
+        "pkwiu": "26.20.17.0",
+        "ilosc": 2,
+        "jednostka": "szt",
+        "cena_netto": 1800.00,
+        "wartosc_netto": 3600.00,
+        "stawka_vat": 23,
+        "kwota_vat": 828.00,
+        "wartosc_brutto": 4428.00
+      },
+      {
+        "lp": 5,
+        "nazwa_towaru_uslugi": "Hub USB-C 7w1",
+        "pkwiu": "26.30.23.0",
+        "ilosc": 4,
+        "jednostka": "szt",
+        "cena_netto": 150.00,
+        "wartosc_netto": 600.00,
+        "stawka_vat": 23,
+        "kwota_vat": 138.00,
+        "wartosc_brutto": 738.00
+      },
+      {
+        "lp": 6,
+        "nazwa_towaru_uslugi": "Kabel HDMI 2.0 2m",
+        "pkwiu": "27.32.13.0",
+        "ilosc": 10,
+        "jednostka": "szt",
+        "cena_netto": 30.00,
+        "wartosc_netto": 300.00,
+        "stawka_vat": 23,
+        "kwota_vat": 69.00,
+        "wartosc_brutto": 369.00
+      },
+      {
+        "lp": 7,
+        "nazwa_towaru_uslugi": "Torba na laptopa 15.6\"",
+        "pkwiu": "15.12.12.0",
+        "ilosc": 2,
+        "jednostka": "szt",
+        "cena_netto": 120.00,
+        "wartosc_netto": 240.00,
+        "stawka_vat": 23,
+        "kwota_vat": 55.20,
+        "wartosc_brutto": 295.20
+      },
+      {
+        "lp": 8,
+        "nazwa_towaru_uslugi": "Dysk zewnętrzny SSD 1TB",
+        "pkwiu": "26.20.21.0",
+        "ilosc": 3,
+        "jednostka": "szt",
+        "cena_netto": 400.00,
+        "wartosc_netto": 1200.00,
+        "stawka_vat": 23,
+        "kwota_vat": 276.00,
+        "wartosc_brutto": 1476.00
+      },
+      {
+        "lp": 9,
+        "nazwa_towaru_uslugi": "Stacja dokująca USB-C",
+        "pkwiu": "26.20.19.0",
+        "ilosc": 1,
+        "jednostka": "szt",
+        "cena_netto": 650.00,
+        "wartosc_netto": 650.00,
+        "stawka_vat": 23,
+        "kwota_vat": 149.50,
+        "wartosc_brutto": 799.50
+      },
+      {
+        "lp": 10,
+        "nazwa_towaru_uslugi": "Usługa konfiguracji sprzętu",
+        "pkwiu": "62.09.20.0",
+        "ilosc": 2,
+        "jednostka": "godz",
+        "cena_netto": 200.00,
+        "wartosc_netto": 400.00,
+        "stawka_vat": 23,
+        "kwota_vat": 92.00,
+        "wartosc_brutto": 492.00
+      }
+    ],
+    "podsumowanie": {
+      "razem_netto": 15140.00,
+      "razem_vat": 3482.20,
+      "razem_brutto": 18622.20,
+      "waluta": "PLN"
+    },
+    "platnosc": {
+      "forma": "Przelew",
+      "termin_platnosci": "2026-11-22",
+      "status": "Nieopłacona"
+    }
+  }
+}

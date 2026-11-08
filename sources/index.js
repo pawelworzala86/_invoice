@@ -257,14 +257,14 @@ function writeItemLine(widths,aligns,items,config){
    doc.x = margin
    // Przykład z szerokościami procentowymi (sumują się do 100) lub w punktach
    writeBorderedLine(widths, aligns, items, {
-      ...config,
       paddingTop: 4,    //większy odstęp od góry ramki
       paddingBottom: 4,  //mniejszy odstęp od dołu ramki
       paddingLeft: 8,
       paddingRight: 8,
       //borderColor: '#000000',
       borderWidth: 0.5,
-      rowGap: 0 // odstęp po wierszu
+      rowGap: 0, // odstęp po wierszu
+      ...config,
    });
    doc.x = margin
 }
@@ -297,15 +297,17 @@ writeTitle('FV/1/2026')
 
 writeSpace(35)
 
-writeItemLine([35,30,35],['left','left','left'],[`wystawił
-ACME Corp.`, '', 'odebrał'],{
-   //height: 55,
-   //alignBottom: true,
-   borderColors: ['#cccccc', null, '#cccccc'],
-   borderWidth: 1,
+writeItemLine([35,30,35],['left','left','left'],[`Sprzedawca:`, '', 'Nabywca:'],{
+    borderColor: '#ffffff',
+    font: boldFont,
+    paddingTop: 4,    //większy odstęp od góry ramki
+    paddingBottom: 0,  //mniejszy odstęp od dołu ramki
+})
+writeItemLine([35,30,35],['left','left','left'],[`ACME Corp.`, '', 'odebrał'],{
+   borderColor: '#ffffff',
 })
 
-writeSpace(20)
+writeSpace(35)
 
 const itemWidths = [30,30,40]
 const itemHeaderAligns = ['left', 'center', 'right']
@@ -323,16 +325,33 @@ writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 
 writeSpace(30)
 
+
 writeItemLine([35,30,35],['center','center','center'],[
-    '......................................................\nwystawił', 
+    '......................................................', 
     '', 
-    '......................................................\nodebrał',
+    '......................................................',
    ],{
    height: 80,
    alignBottom: true,
    //borderColors: ['#cccccc', null, '#cccccc'],
    borderWidth: 1,
-   borderColor: '#ffffff'
+   borderColor: '#ffffff',
+   paddingTop: 4,    //większy odstęp od góry ramki
+   paddingBottom: 0,  //mniejszy odstęp od dołu ramki
+})
+writeItemLine([35,30,35],['center','center','center'],[
+    'wystawił', 
+    '', 
+    'odebrał',
+   ],{
+   //height: 80,
+   //alignBottom: true,
+   //borderColors: ['#cccccc', null, '#cccccc'],
+   //borderWidth: 1,
+   borderColor: '#ffffff',
+   font: boldFont,
+   paddingTop: 0,    //większy odstęp od góry ramki
+   paddingBottom: 4,  //mniejszy odstęp od dołu ramki
 })
 
 
