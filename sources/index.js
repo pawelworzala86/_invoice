@@ -6,7 +6,6 @@ import fs from 'fs'
 const grayTextColor = '#555'
 const headingsColor = '#101112'
 const blackTextColor = '#161616'
-const accentColor = '#41b5c7'
 const captionTextColor = '#11375f'
 
 
@@ -20,14 +19,11 @@ const fontH2 = 14
 const fontDefault = 9.15
 const fontLabel = 12.5
 const fontSubLabel = 11
-const labelLeftFontSize = 10
 const fontCaption = 10
 
 const lineGap = 1.28
-const shadowOpacity = 0.026
-
-const boldFont = './fonts/Open_Sans/static/OpenSans-Bold.ttf'
-const headerFont = './fonts/Open_Sans/static/OpenSans-SemiBold.ttf'
+//const boldFont = './fonts/Open_Sans/static/OpenSans-Bold.ttf'
+//const headerFont = './fonts/Open_Sans/static/OpenSans-SemiBold.ttf'
 const textFont = './fonts/Open_Sans/static/OpenSans-Regular.ttf'
 
 
@@ -60,6 +56,18 @@ function writeLine(size,text,config={}){
       align: 'left',   // left / right / center / justify
       lineGap: lineGap,       // odstęp między liniami
       link: config.url,
+   })
+}
+
+function writeCenter(text,config={}){
+   doc.font(config.font??textFont)
+
+   doc.fillColor(grayTextColor)
+   doc.fontSize(config.fontSize??fontDefault)
+   doc.text(text.trim(), {
+      width: config.wrapperWidth??wrapperWidth,      // szerokość kolumny
+      align: config.align??'left',   // left / right / center / justify
+      lineGap: lineGap       // odstęp między liniami
    })
 }
 
@@ -253,7 +261,7 @@ function writeBorderedLine(widths, texts, config = {}) {
 
 
 
-doc.x = 30
+doc.x = margin
 doc.y = margin
 
 
@@ -262,8 +270,6 @@ doc.y = margin
 
 
 
-const labelOffset = 4
-const contactYoffset = 4
 
 
 
@@ -282,32 +288,6 @@ const contactYoffset = 4
 
 
 
-/*
-writeLabel('Dane kontaktowe', labelLeftFontSize*1.25, labelOffset)
-
-doc.fillColor(headingsColor)
-writeLine(fontDefault,'+48666925387',{
-   textColor: grayTextColor,
-   url: 'tel:+48666925387',
-})
-doc.y += contactYoffset
-writeLine(fontDefault,'pawelworzala86@gmail.com',{
-   textColor: grayTextColor,
-})
-doc.y += contactYoffset
-writeLine(fontDefault,'linkedin/pawelworzala',{
-   textColor: grayTextColor,
-   url: 'https://www.linkedin.com/in/pawelworzala/',
-})
-doc.y += contactYoffset
-writeLine(fontDefault,'github/pawelworzala86',{
-   textColor: grayTextColor,
-   url: 'https://github.com/pawelworzala86',
-})
-doc.y += contactYoffset
-
-
-const leftSideOffsetY = 8
 
 
 
@@ -315,60 +295,6 @@ const leftSideOffsetY = 8
 
 
 
-doc.y += leftSideOffsetY
-
-writeLabel('Języki programowania', labelLeftFontSize, labelOffset)
-writeLine(fontDefault,'TypeScript, JavaScript, PHP, SQL, HTML, CSS, ASM',{
-   wrapperWidth: 165 - margin*2,
-   textColor: grayTextColor,
-})
-doc.y += leftSideOffsetY
-writeLabel('Frameworki / biblioteki', labelLeftFontSize,labelOffset)
-writeLine(fontDefault,'Next.js, Express, MVC, drizzle, zod, k6, pdfkit, openapi',{
-   wrapperWidth: 165 - margin*2,
-   textColor: grayTextColor,
-})
-doc.y += leftSideOffsetY
-writeLabel('Bazy danych', labelLeftFontSize,labelOffset)
-writeLine(fontDefault,'PostgreSQL, pgEdge, MariaDB',{
-   wrapperWidth: 165 - margin*2,
-   textColor: grayTextColor,
-})
-doc.y += leftSideOffsetY
-writeLabel('Narzędzia', labelLeftFontSize,labelOffset)
-writeLine(fontDefault,'Docker, Git, Node.js, Postman',{
-   wrapperWidth: 165 - margin*2,
-   textColor: grayTextColor,
-})
-doc.y += leftSideOffsetY
-
-
-
-doc.y = 670
-writeLabel('Specjalizacje', labelLeftFontSize,labelOffset)
-writeLine(fontDefault,'REST API, MVC, backend, refactoring',{
-   wrapperWidth: 165 - margin*2,
-   textColor: grayTextColor,
-})
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-doc.x = margin
-//doc.y = -10
-
-doc.fillColor(headingsColor)
 
 
 
@@ -377,67 +303,12 @@ doc.fillColor(headingsColor)
 
 doc.y = doc.y + 40
 
-doc.fillColor(headingsColor)
-doc.font(boldFont)
-   .fontSize(fontH1)
-   .text('PAWEŁ WORZAŁA')//, 50, 50)
-
-doc.y = doc.y + 5
-
-doc.fillColor(accentColor)
-doc.font(headerFont)
-   .fontSize(fontH2)
-   .text('Backend Developer'.toUpperCase())//, 50, 80)
-
-doc.y = doc.y + 10
+writeCenter('FV/1/2026',{
+   fontSize: fontH1,
+   align: 'center',
+})
 
 
-
-paragraph('', `Backend Developer z komercyjnym doświadczeniem w tworzeniu i utrzymaniu skalowalnych systemów backendowych oraz projektowaniu baz danych. W pracy komercyjnej odpowiadam za rozwój zaawansowanych REST API w środowiskach TypeScript/Next.js oraz PHP (MVC). Specjalizuję się w implementacji architektury API, obsłudze relacyjnych baz danych (PostgreSQL, MariaDB) oraz tworzeniu dokumentacji technicznej w OpenAPI.`)
-
-
-//doc.y = margin
-
-
-writeLabel('Doświadczenie zawodowe')
-doc.y += 8
-writeULHeader('05.2025 - obecnie | MedicalTech | backend TypeScript')
-writeLI('Implementacja ponad 200 endpointów w TypeScript/Next.js (REST API).')
-writeLI('Wdrożenie globalnych mechanizmów takich jak np. errorHandler.')
-writeLI('Stworzenie dynamicznego filtrowania danych wejściowych z zapytań URL.')
-writeLI('Implementacja testów API i obciążeniowych oparciu o k6.')
-doc.y += 8
-
-doc.y += 8
-writeULHeader('06.2020 - 05.2025| Niezależny programista / freelance')
-writeLI('Rozwój i utrzymanie ponad 130 repozytoriów/projektów w GitHub.')
-writeLI('Projektowanie własnych frameworków, silników oraz narzędzi.')
-writeLI('Zaprojektowanie i realizacja integracji do sklepów (np. SkyShop).')
-writeLI('Tworzenie zaawansowanych architektur, optymalizacja wydajnościowa zapytań SQL.')
-writeLI('Stworzenie prostego kompilatora TypeScript do ASM i do exe.')
-doc.y += 8
-
-doc.y += 8
-writeULHeader('07.2017 - 06.2020 | ITPlex | backend PHP')
-writeLI('Rozwój backendu w autorskim frameworku MVC - PHP 7, MariaDB')
-writeLI('Implementacja modułów m.in. moduł fakturowania, generowania dokumentów.')
-writeLI('Testowanie endpointów i przygotowywanie dokumentacji w Swagger/OpenAPI.')
-doc.y += 8
-
-
-writeLabel('Moje projekty')
-writeLI('bTS - kompilator składni TypeScript do Assembly (fasmg), napisany w JS.')
-writeLI('winasm - prosty kompilator assemblera pod Windows - PE64.')
-writeLI('ds - prosty kompilator TypeScript do formatu win PE64.')
-writeLI('simpleWebGL - prosty loader modeli 3d - przez przeglądarkę.')
-
-
-
-doc.y = 670
-
-writeLabel('Wykształcenie')
-
-paragraph('', `2005-2007 - Technik Informatyk - Aplikacje sieciowe`)
 
 
 
@@ -484,12 +355,5 @@ writeBorderedLine([30, 30, 40], ['Dłuższy tekst w kolumnie pierwszej', 'Krótk
 
 
 
-
-doc.x = 60
-doc.y = 780
-
-paragraph('', `Wyrażam zgodę na przetwarzanie moich danych osobowych zawartych w CV na potrzeby niezbędne do realizacji procesu rekrutacji, zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO).`,{
-   wrapperWidth: 480,
-})
 
 doc.end()
