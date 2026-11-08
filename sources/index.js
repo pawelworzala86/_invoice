@@ -3,6 +3,17 @@ import fs from 'fs'
 
 
 
+
+
+const invoice = JSON.parse(fs.readFileSync('./invoice.json').toString()).faktura
+
+
+
+
+
+
+
+
 const grayTextColor = '#555'
 
 
@@ -288,12 +299,11 @@ function writeItemLine(widths,aligns,items,config){
 
 
 
-writeDate(`Starogard Gdański
-08.11.2026`)
+writeDate(invoice.miejsce_wystawienia+'\n'+invoice.data_wystawienia)
 
 writeSpace(35)
 
-writeTitle('FV/1/2026')
+writeTitle(invoice.numer)
 
 writeSpace(35)
 
@@ -303,25 +313,36 @@ writeItemLine([35,30,35],['left','left','left'],[`Sprzedawca:`, '', 'Nabywca:'],
     paddingTop: 4,    //większy odstęp od góry ramki
     paddingBottom: 0,  //mniejszy odstęp od dołu ramki
 })
-writeItemLine([35,30,35],['left','left','left'],[`ACME Corp.`, '', 'odebrał'],{
+writeItemLine([35,30,35],['left','left','left'],[
+    invoice.sprzedawca.nazwa+'\nNIP: '+invoice.sprzedawca.nip+'\n'+invoice.sprzedawca.adres.replace(/(\, |\,)/gm,'\n'),
+    '', 
+    invoice.nabywca.nazwa+'\nNIP: '+invoice.nabywca.nip+'\n'+invoice.nabywca.adres.replace(/(\, |\,)/gm,'\n'),
+    ],{
    borderColor: '#ffffff',
 })
 
 writeSpace(35)
 
-const itemWidths = [30,30,40]
-const itemHeaderAligns = ['left', 'center', 'right']
-const itemAligns = ['left', 'center', 'right']
+const itemWidths = [35,15,10,8,12,8,12]
+const itemHeaderAligns = ['left', 'left', 'right', 'left', 'right', 'right', 'right']
+const itemAligns = ['left', 'left', 'right', 'left', 'right', 'right', 'right']
 
 
-writeItemLine(itemWidths,itemHeaderAligns,['kol1', 'kol2', 'kol3'],{
+writeItemLine(itemWidths,itemHeaderAligns,['Nazwa towaru/usługi', 'pkwiu', 'ilosc', 'jm', 'c.netto','VAT','w.brutto'],{
    font: boldFont,
 })
 
-
-writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
-writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
-writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
+for(const pozycja of invoice.pozycje){
+    writeItemLine(itemWidths,itemAligns,[
+        pozycja.nazwa_towaru_uslugi, 
+        pozycja.pkwiu, 
+        pozycja.ilosc,
+        pozycja.jednostka,
+        pozycja.cena_netto.toFixed(2),
+        pozycja.stawka_vat,
+        pozycja.wartosc_brutto.toFixed(2),
+    ])
+}
 
 writeSpace(30)
 
