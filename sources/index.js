@@ -182,7 +182,18 @@ function writeBorderedLine(widths, aligns, texts, config = {}) {
     }
 }
 
-
+function writeSpace(spaceHeight) {
+    const bottomMargin = doc.page.margins.bottom;
+    const pageHeight = doc.page.height;
+    
+    // Sprawdzamy czy dodanie odstępu spowoduje wyjście poza margines dolny strony
+    if (doc.y + spaceHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        doc.x = margin; // Przywrócenie marginesu X dla nowej strony
+    } else {
+        doc.y += spaceHeight;
+    }
+}
 
 
 
@@ -274,12 +285,17 @@ function writeItemLine(widths,aligns,items,config){
 
 
 
+
+
+
 writeDate(`Starogard Gdański
 08.11.2026`)
 
+writeSpace(35)
+
 writeTitle('FV/1/2026')
 
-
+writeSpace(35)
 
 writeItemLine([35,30,35],['left','left','left'],[`wystawił
 ACME Corp.`, '', 'odebrał'],{
@@ -289,7 +305,7 @@ ACME Corp.`, '', 'odebrał'],{
    borderWidth: 1,
 })
 
-
+writeSpace(20)
 
 const itemWidths = [30,30,40]
 const itemHeaderAligns = ['left', 'center', 'right']
@@ -305,12 +321,18 @@ writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 
+writeSpace(30)
 
-writeItemLine([35,30,35],['center','center','center'],['wystawił', '', 'odebrał'],{
-   height: 55,
+writeItemLine([35,30,35],['center','center','center'],[
+    '......................................................\nwystawił', 
+    '', 
+    '......................................................\nodebrał',
+   ],{
+   height: 80,
    alignBottom: true,
-   borderColors: ['#cccccc', null, '#cccccc'],
+   //borderColors: ['#cccccc', null, '#cccccc'],
    borderWidth: 1,
+   borderColor: '#ffffff'
 })
 
 
