@@ -71,8 +71,9 @@ function writeBorderedLine(widths, aligns, texts, config = {}) {
         return w; 
     });
 
-    // 1. Oblicz maksymalną wysokość wiersza na podstawie najdłuższej kolumny
-    let maxHeight = 0;
+    // 1. Oblicz maksymalną wysokość wiersza na podstawie zawartości
+    let maxHeight = config.height ?? 0; 
+    
     texts.forEach((text, index) => {
         const colWidth = absoluteWidths[index];
         const textWidth = colWidth - (paddingLeft + paddingRight);
@@ -94,7 +95,7 @@ function writeBorderedLine(widths, aligns, texts, config = {}) {
         doc.addPage();
     }
 
-    // 3. Rysowanie ramek i tekstów
+    // 3. Rysowanie ramek kolumn
     let currentX = doc.x;
     const startY = doc.y;
     const totalRowWidth = absoluteWidths.reduce((a, b) => a + b, 0);
@@ -102,45 +103,47 @@ function writeBorderedLine(widths, aligns, texts, config = {}) {
     if (config.border !== false) {
         const colorSource = config.borderColors ?? config.borderColor;
 
-        // Wariant A: Jeśli podano tablicę kolorów dla kolumn (np. ['#ff0000', null, '#0000ff'])
         if (Array.isArray(colorSource)) {
             texts.forEach((_, index) => {
                 const colWidth = absoluteWidths[index];
                 const colBorderColor = colorSource[index];
 
-                // Rysujemy ramkę dla kolumny TYLKO jeśli jej kolor nie jest null/false/undefined
                 if (colBorderColor !== null && colBorderColor !== false && colBorderColor !== undefined) {
-                    doc.save()
-                       .strokeColor(colBorderColor)
-                       .lineWidth(config.borderWidth || 1)
-                       .rect(currentX, startY, colWidth, maxHeight)
-                       .stroke()
-                       .restore();
+                    doc.save();
+                    
+                    // Ustawienie szerokości i koloru ramki tuż przed rysowaniem
+                    doc.lineWidth(config.borderWidth || 1);
+                    doc.strokeColor(colBorderColor); // Wymuszenie dokładnego koloru z tablicy
+                    
+                    doc.rect(currentX, startY, colWidth, maxHeight)
+                       .stroke();
+                       
+                    doc.restore();
                 }
                 currentX += colWidth;
             });
-        } 
-        // Wariant B: Standardowa ramka dla całego wiersza / pojedynczy kolor
-        else {
+        } else {
             const rowBorderColor = colorSource ?? '#cccccc';
             if (rowBorderColor !== null && rowBorderColor !== false && rowBorderColor !== undefined) {
-                doc.save()
-                   .strokeColor(rowBorderColor)
-                   .lineWidth(config.borderWidth || 1)
-                   .rect(currentX, startY, totalRowWidth, maxHeight)
-                   .stroke()
-                   .restore();
+                doc.save();
+                doc.lineWidth(config.borderWidth || 1);
+                doc.strokeColor(rowBorderColor);
+                
+                doc.rect(currentX, startY, totalRowWidth, maxHeight)
+                   .stroke();
+                   
+                doc.restore();
             }
         }
     }
 
-    // Reset currentX do wypisania tekstów
+    // 4. Wypisanie tekstów z opcjonalnym wyrównaniem do dołu (alignBottom)
     currentX = doc.x;
 
     texts.forEach((text, index) => {
         const colWidth = absoluteWidths[index];
+        const textStr = String(text).trim();
 
-        // Określenie wyrównania dla konkretnej kolumny
         let colAlign = 'left';
         if (Array.isArray(aligns)) {
             colAlign = aligns[index] ?? config.align ?? 'left';
@@ -150,8 +153,20 @@ function writeBorderedLine(widths, aligns, texts, config = {}) {
             colAlign = config.align;
         }
 
-        // Wypisanie tekstu wewnątrz komórki
-        doc.text(String(text).trim(), currentX + paddingLeft, startY + paddingTop, {
+        let textY = startY + paddingTop;
+        if (config.alignBottom && textStr !== '') {
+            const textWidth = colWidth - (paddingLeft + paddingRight);
+            const textHeight = doc.heightOfString(textStr, {
+                width: textWidth,
+                lineGap: lineGap
+            });
+            textY = startY + maxHeight - textHeight - paddingBottom;
+            if (textY < startY + paddingTop) {
+                textY = startY + paddingTop;
+            }
+        }
+
+        doc.text(textStr, currentX + paddingLeft, textY, {
             width: colWidth - (paddingLeft + paddingRight),
             align: colAlign,
             lineGap: lineGap
@@ -160,7 +175,6 @@ function writeBorderedLine(widths, aligns, texts, config = {}) {
         currentX += colWidth;
     });
 
-    // Przesunięcie kursora Y na koniec wiersza
     doc.y = startY + maxHeight;
     
     if (config.rowGap) {
@@ -237,7 +251,7 @@ function writeItemLine(widths,aligns,items,config){
       paddingBottom: 4,  //mniejszy odstęp od dołu ramki
       paddingLeft: 8,
       paddingRight: 8,
-      borderColor: '#000000',
+      //borderColor: '#000000',
       borderWidth: 0.5,
       rowGap: 0 // odstęp po wierszu
    });
@@ -267,6 +281,16 @@ writeTitle('FV/1/2026')
 
 
 
+writeItemLine([35,30,35],['left','left','left'],[`wystawił
+ACME Corp.`, '', 'odebrał'],{
+   //height: 55,
+   //alignBottom: true,
+   borderColors: ['#cccccc', null, '#cccccc'],
+   borderWidth: 1,
+})
+
+
+
 const itemWidths = [30,30,40]
 const itemHeaderAligns = ['left', 'center', 'right']
 const itemAligns = ['left', 'center', 'right']
@@ -274,14 +298,20 @@ const itemAligns = ['left', 'center', 'right']
 
 writeItemLine(itemWidths,itemHeaderAligns,['kol1', 'kol2', 'kol3'],{
    font: boldFont,
-   borderColors: ['#ff0000', null, '#0000ff'],
 })
 
+
 writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 writeItemLine(itemWidths,itemAligns,['kol1', 'kol2', 'kol3'])
 
 
+writeItemLine([35,30,35],['center','center','center'],['wystawił', '', 'odebrał'],{
+   height: 55,
+   alignBottom: true,
+   borderColors: ['#cccccc', null, '#cccccc'],
+   borderWidth: 1,
+})
 
 
 
