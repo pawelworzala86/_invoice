@@ -33,6 +33,7 @@ const textFont = './fonts/Open_Sans/static/OpenSans-Regular.ttf'
 
 
 class Document{
+    doc:typeof PDFDocument
     constructor(){
         this.doc = new PDFDocument({
         size: 'A4',
@@ -40,7 +41,7 @@ class Document{
         })
         this.doc.pipe(fs.createWriteStream('invoice.pdf'))
     }
-    writeLine(text,config={}){
+    writeLine(text:string,config:any={}){
         this.doc.font(config.font??textFont)
 
         this.doc.fillColor(grayTextColor)
@@ -51,7 +52,7 @@ class Document{
             lineGap: lineGap       // odstęp między liniami
         })
     }
-    writeBorderedLine(widths, aligns, texts, config = {}) {
+    writeBorderedLine(widths:any, aligns:any, texts:any, config:any={}) {
         const {doc} = this
         doc.font(config.font ?? textFont);
         doc.fontSize(config.fontSize ?? fontDefault);
@@ -67,10 +68,10 @@ class Document{
         const lineGap = config.lineGap ?? 2;
         
         // Jeśli szerokości są podane jako procenty (np. suma = 100)
-        const totalWidthConfig = widths.reduce((acc, val) => acc + val, 0);
+        const totalWidthConfig = widths.reduce((acc:any, val:any) => acc + val, 0);
         const availableWidth = config.wrapperWidth ?? wrapperWidth;
         
-        const absoluteWidths = widths.map(w => {
+        const absoluteWidths = widths.map((w:any) => {
             if (totalWidthConfig <= 100) {
                 return (w / 100) * availableWidth;
             }
@@ -80,7 +81,7 @@ class Document{
         // 1. Oblicz maksymalną wysokość wiersza na podstawie zawartości
         let maxHeight = config.height ?? 0; 
         
-        texts.forEach((text, index) => {
+        texts.forEach((text:any, index:any) => {
             const colWidth = absoluteWidths[index];
             const textWidth = colWidth - (paddingLeft + paddingRight);
             const textHeight = doc.heightOfString(String(text).trim(), {
@@ -104,13 +105,13 @@ class Document{
         // 3. Rysowanie ramek kolumn
         let currentX = doc.x;
         const startY = doc.y;
-        const totalRowWidth = absoluteWidths.reduce((a, b) => a + b, 0);
+        const totalRowWidth = absoluteWidths.reduce((a:any, b:any) => a + b, 0);
 
         if (config.border !== false) {
             const colorSource = config.borderColors ?? config.borderColor;
 
             if (Array.isArray(colorSource)) {
-                texts.forEach((_, index) => {
+                texts.forEach((_:any, index:any) => {
                     const colWidth = absoluteWidths[index];
                     const colBorderColor = colorSource[index];
 
@@ -146,11 +147,11 @@ class Document{
         // 4. Wypisanie tekstów z opcjonalnym wyrównaniem do dołu (alignBottom)
         currentX = doc.x;
 
-        texts.forEach((text, index) => {
+        texts.forEach((text:any, index:any) => {
             const colWidth = absoluteWidths[index];
             const textStr = String(text).trim();
 
-            let colAlign = 'left';
+            let colAlign:any = 'left';
             if (Array.isArray(aligns)) {
                 colAlign = aligns[index] ?? config.align ?? 'left';
             } else if (typeof aligns === 'string') {
@@ -188,7 +189,7 @@ class Document{
         }
     }
 
-    writeSpace(spaceHeight) {
+    writeSpace(spaceHeight:any) {
         const {doc} = this
         const bottomMargin = doc.page.margins.bottom;
         const pageHeight = doc.page.height;
@@ -237,11 +238,12 @@ class Document{
 
 
 class Invoice extends Document{
-    constructor(filePath){
+    data:any
+    constructor(filePath:string){
         super()
         this.data = JSON.parse(fs.readFileSync(filePath).toString()).faktura
     }
-    writeDate(text){
+    writeDate(text:string){
         const {doc} = this
         const lines = text.split('\n')
         for(const line of lines){
@@ -256,13 +258,13 @@ class Invoice extends Document{
             doc.x = margin
         }
     }
-    writeTitle(text){
+    writeTitle(text:string){
         this.writeLine(text,{
             fontSize: fontH1,
             align: 'center',
         })
     }
-    writeItemLine(widths,aligns,items,config){
+    writeItemLine(widths:any,aligns:any,items:any,config:any={}){
         const {doc} = this
         doc.x = margin
         // Przykład z szerokościami procentowymi (sumują się do 100) lub w punktach
