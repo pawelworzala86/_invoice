@@ -19,6 +19,10 @@ export class Document{
     fontH1:number = 32
     fontDefault:number = 9.15
     lineGap:number = 1.28
+
+    private buffers: Buffer[] = [];
+    public bufferPromise: Promise<Buffer>;
+
     constructor(){
         this.margin = 25
         this.wrapperWidth = 595-(this.margin*2)
@@ -26,8 +30,19 @@ export class Document{
             size: 'A4',
             margin: this.margin
         })
-        this.doc.pipe(fs.createWriteStream('invoice.pdf'))
+        
+        this.doc.on('data', (chunk: Buffer) => this.buffers.push(chunk));
+        this.bufferPromise = new Promise((resolve, reject) => {
+            this.doc.on('end', () => resolve(Buffer.concat(this.buffers)));
+            this.doc.on('error', (err) => reject(err));
+        });
     }
+    
+    async toBuffer(): Promise<Buffer> {
+        this.doc.end();
+        return this.bufferPromise;
+    }
+
     writeLine(text:string,config:any={}){
         this.doc.font(config.font??this.textFont)
 

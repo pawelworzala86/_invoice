@@ -1,11 +1,54 @@
 import Document from './document.ts'
-import fs from 'fs'
+
+export interface CompanyInfo {
+  name: string;
+  nip: string;
+  address: string;
+}
+
+export interface InvoiceItem {
+  positionNumber: number;
+  itemName: string;
+  pkwiu: string;
+  quantity: number;
+  unit: string;
+  netPrice: number;
+  netValue: number;
+  vatRate: number;
+  vatAmount: number;
+  grossValue: number;
+}
+
+export interface InvoiceSummary {
+  totalNet: number;
+  totalVat: number;
+  totalGross: number;
+  currency: string;
+}
+
+export interface InvoicePayment {
+  method: string;
+  dueDate: string;
+  status: string;
+}
+
+export interface InvoiceDetails {
+  number: string;
+  issueDate: string;
+  saleDate: string;
+  issuePlace: string;
+  seller: CompanyInfo;
+  buyer: CompanyInfo;
+  items: InvoiceItem[];
+  summary: InvoiceSummary;
+  payment: InvoicePayment;
+}
 
 export class Invoice extends Document{
-    data:any
-    constructor(filePath:string){
+    data:InvoiceDetails
+    constructor(data:InvoiceDetails){
         super()
-        this.data = JSON.parse(fs.readFileSync(filePath).toString()).faktura
+        this.data = data
     }
     writeDate(text:string){
         const {doc} = this
@@ -60,11 +103,11 @@ export class Invoice extends Document{
 
 
 
-        this.writeDate(invoice.miejsce_wystawienia+'\n'+invoice.data_wystawienia)
+        this.writeDate(invoice.issuePlace+' '+invoice.issueDate)
 
         this.writeSpace(35)
 
-        this.writeTitle(invoice.numer)
+        this.writeTitle(invoice.number)
 
         this.writeSpace(35)
 
@@ -75,9 +118,9 @@ export class Invoice extends Document{
             paddingBottom: 0,  //mniejszy odstęp od dołu ramki
         })
         this.writeItemLine([35,30,35],['left','left','left'],[
-            invoice.sprzedawca.nazwa+'\nNIP: '+invoice.sprzedawca.nip+'\n'+invoice.sprzedawca.adres.replace(/(\, |\,)/gm,'\n'),
+            invoice.seller.name+'\nNIP: '+invoice.seller.nip+'\n'+invoice.seller.address.replace(/(\, |\,)/gm,'\n'),
             '', 
-            invoice.nabywca.nazwa+'\nNIP: '+invoice.nabywca.nip+'\n'+invoice.nabywca.adres.replace(/(\, |\,)/gm,'\n'),
+            invoice.buyer.name+'\nNIP: '+invoice.buyer.nip+'\n'+invoice.buyer.address.replace(/(\, |\,)/gm,'\n'),
             ],{
             borderColor: '#ffffff',
         })
@@ -93,15 +136,15 @@ export class Invoice extends Document{
             font: this.boldFont,
         })
 
-        for(const pozycja of invoice.pozycje){
+        for(const pozycja of invoice.items){
             this.writeItemLine(itemWidths,itemAligns,[
-                pozycja.nazwa_towaru_uslugi, 
+                pozycja.itemName, 
                 pozycja.pkwiu, 
-                pozycja.ilosc,
-                pozycja.jednostka,
-                pozycja.cena_netto.toFixed(2),
-                pozycja.stawka_vat,
-                pozycja.wartosc_brutto.toFixed(2),
+                pozycja.quantity,
+                pozycja.unit,
+                pozycja.netPrice.toFixed(2),
+                pozycja.vatRate,
+                pozycja.grossValue.toFixed(2),
             ])
         }
 
@@ -135,7 +178,7 @@ export class Invoice extends Document{
             paddingBottom: 4,  //mniejszy odstęp od dołu ramki
         })
 
-        doc.end()
+        return this.toBuffer()
     }
 }
 
