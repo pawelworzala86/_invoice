@@ -237,9 +237,9 @@ class Document{
 
 
 class Invoice extends Document{
-    constructor(){
+    constructor(filePath){
         super()
-        this.data = JSON.parse(fs.readFileSync('./invoice.json').toString()).faktura
+        this.data = JSON.parse(fs.readFileSync(filePath).toString()).faktura
     }
     writeDate(text){
         const {doc} = this
@@ -373,5 +373,5 @@ class Invoice extends Document{
     }
 }
 
-const invoice = new Invoice()
+const invoice = new Invoice('./invoice.json')
 invoice.make()
