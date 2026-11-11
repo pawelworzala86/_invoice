@@ -5,7 +5,7 @@ import fs from 'fs'
 
 
 
-const invoice = JSON.parse(fs.readFileSync('./invoice.json').toString()).faktura
+
 
 
 
@@ -201,6 +201,7 @@ class Document{
             doc.y += spaceHeight;
         }
     }
+}
 
 
 
@@ -235,8 +236,11 @@ class Document{
 
 
 
-
-
+class Invoice extends Document{
+    constructor(){
+        super()
+        this.data = JSON.parse(fs.readFileSync('./invoice.json').toString()).faktura
+    }
     writeDate(text){
         const {doc} = this
         const lines = text.split('\n')
@@ -281,10 +285,10 @@ class Document{
 
     make(){
         const {doc} = this
+        const invoice = this.data
 
         doc.x = margin
         doc.y = margin
-
 
 
 
@@ -369,5 +373,5 @@ class Document{
     }
 }
 
-const document = new Document()
-document.make()
+const invoice = new Invoice()
+invoice.make()
