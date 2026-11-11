@@ -5,14 +5,14 @@
     "data_sprzedazy": "2026-11-08",
     "miejsce_wystawienia": "Warszawa",
     "sprzedawca": {
-      "nazwa": "Tech Solutions Sp. z o.o.",
-      "nip": "5252678901",
-      "adres": "ul. Marszałkowska 100, 00-017 Warszawa"
+      "nazwa": "ACME Sp. z o.o.",
+      "nip": "1111111111",
+      "adres": "ul. Przyładowa 100, 00-017 Warszawa"
     },
     "nabywca": {
       "nazwa": "Firma Handlowa Jan Kowalski",
-      "nip": "1130021485",
-      "adres": "ul. Złota 44, 00-120 Warszawa"
+      "nip": "1111111111",
+      "adres": "ul. Przyładowa 44, 00-120 Warszawa"
     },
     "pozycje": [
       {
