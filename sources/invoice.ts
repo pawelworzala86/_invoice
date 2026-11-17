@@ -37,18 +37,32 @@ export interface InvoiceDetails {
   issueDate: string;
   saleDate: string;
   issuePlace: string;
-  seller: CompanyInfo;
-  buyer: CompanyInfo;
-  items: InvoiceItem[];
-  summary: InvoiceSummary;
-  payment: InvoicePayment;
 }
 
 export class Invoice extends Document{
-    data:InvoiceDetails
-    constructor(data:InvoiceDetails){
-        super()
-        this.data = data
+    details: InvoiceDetails|null = null
+    seller: CompanyInfo|null = null
+    buyer: CompanyInfo|null = null
+    items: InvoiceItem[] = []
+    summary: InvoiceSummary|null = null
+    payment: InvoicePayment|null = null
+    setSummary(summary: InvoiceSummary){
+        this.summary = summary
+    }
+    setPayment(payment: InvoicePayment){
+        this.payment = payment
+    }
+    setDetails(details: InvoiceDetails){
+        this.details = details
+    }
+    setSeller(seller: CompanyInfo){
+        this.seller = seller
+    }
+    setBuyer(buyer: CompanyInfo){
+        this.buyer = buyer
+    }
+    addItem(item: InvoiceItem){
+        this.items.push(item)
     }
     writeDate(text:string){
         const {doc} = this
@@ -94,7 +108,10 @@ export class Invoice extends Document{
 
     make(){
         const {doc} = this
-        const invoice = this.data
+        const {details,seller,buyer,items,summary,payment} = this
+        if(!details || !seller || !buyer || !items || !summary || !payment){
+            throw new Error('Missing required invoice data')
+        }
 
         doc.x = this.margin
         doc.y = this.margin
@@ -103,11 +120,11 @@ export class Invoice extends Document{
 
 
 
-        this.writeDate(invoice.issuePlace+' '+invoice.issueDate)
+        this.writeDate(details.issuePlace+' '+details.issueDate)
 
         this.writeSpace(35)
 
-        this.writeTitle(invoice.number)
+        this.writeTitle(details.number)
 
         this.writeSpace(35)
 
@@ -118,9 +135,9 @@ export class Invoice extends Document{
             paddingBottom: 0,  //mniejszy odstęp od dołu ramki
         })
         this.writeItemLine([35,30,35],['left','left','left'],[
-            invoice.seller.name+'\nNIP: '+invoice.seller.nip+'\n'+invoice.seller.address.replace(/(\, |\,)/gm,'\n'),
+            seller.name+'\nNIP: '+seller.nip+'\n'+seller.address.replace(/(\, |\,)/gm,'\n'),
             '', 
-            invoice.buyer.name+'\nNIP: '+invoice.buyer.nip+'\n'+invoice.buyer.address.replace(/(\, |\,)/gm,'\n'),
+            buyer.name+'\nNIP: '+buyer.nip+'\n'+buyer.address.replace(/(\, |\,)/gm,'\n'),
             ],{
             borderColor: '#ffffff',
         })
@@ -136,7 +153,7 @@ export class Invoice extends Document{
             font: this.boldFont,
         })
 
-        for(const pozycja of invoice.items){
+        for(const pozycja of items){
             this.writeItemLine(itemWidths,itemAligns,[
                 pozycja.itemName, 
                 pozycja.pkwiu, 
