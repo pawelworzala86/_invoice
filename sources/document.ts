@@ -1,208 +1,281 @@
 import PDFDocument from 'pdfkit'
-import fs from 'fs'
 
+export type TextAlignment = 'left' | 'right' | 'center' | 'justify'
+export type TextValue = string | number
+export type BorderColor = string | false | null | undefined
 
+export interface LineConfig {
+    font?: string
+    fontSize?: number
+    wrapperWidth?: number
+    align?: TextAlignment
+}
 
+export interface BorderedLineConfig extends LineConfig {
+    textColor?: string
+    border?: boolean
+    borderColor?: BorderColor
+    borderColors?: BorderColor[]
+    borderWidth?: number
+    padding?: number
+    paddingTop?: number
+    paddingBottom?: number
+    paddingLeft?: number
+    paddingRight?: number
+    lineGap?: number
+    height?: number
+    alignBottom?: boolean
+    rowGap?: number
+}
 
+export class Document {
+    readonly doc: InstanceType<typeof PDFDocument>
+    readonly margin: number
+    readonly wrapperWidth: number
+    readonly boldFont = './fonts/Open_Sans/static/OpenSans-Bold.ttf'
+    readonly headerFont = './fonts/Open_Sans/static/OpenSans-SemiBold.ttf'
+    readonly textFont = './fonts/Open_Sans/static/OpenSans-Regular.ttf'
+    readonly grayTextColor = '#555'
+    readonly fontH1 = 32
+    readonly fontDefault = 9.15
+    readonly lineGap = 1.28
 
+    private readonly buffers: Buffer[] = []
+    private readonly bufferPromise: Promise<Buffer>
 
-
-
-export class Document{
-    doc:typeof PDFDocument
-    margin:number
-    wrapperWidth:number
-    boldFont:string = './fonts/Open_Sans/static/OpenSans-Bold.ttf'
-    headerFont:string = './fonts/Open_Sans/static/OpenSans-SemiBold.ttf'
-    textFont:string = './fonts/Open_Sans/static/OpenSans-Regular.ttf'
-    grayTextColor:string = '#555'
-    fontH1:number = 32
-    fontDefault:number = 9.15
-    lineGap:number = 1.28
-
-    private buffers: Buffer[] = [];
-    public bufferPromise: Promise<Buffer>;
-
-    constructor(){
+    constructor() {
         this.margin = 25
-        this.wrapperWidth = 595-(this.margin*2)
+        this.wrapperWidth = 595 - this.margin * 2
         this.doc = new PDFDocument({
             size: 'A4',
-            margin: this.margin
+            margin: this.margin,
         })
-        
-        this.doc.on('data', (chunk: Buffer) => this.buffers.push(chunk));
+
+        this.doc.on('data', (chunk: Buffer) => this.buffers.push(chunk))
         this.bufferPromise = new Promise((resolve, reject) => {
-            this.doc.on('end', () => resolve(Buffer.concat(this.buffers)));
-            this.doc.on('error', (err) => reject(err));
-        });
-    }
-    
-    async toBuffer(): Promise<Buffer> {
-        this.doc.end();
-        return this.bufferPromise;
-    }
-
-    writeLine(text:string,config:any={}){
-        this.doc.font(config.font??this.textFont)
-
-        this.doc.fillColor(this.grayTextColor)
-        this.doc.fontSize(config.fontSize??this.fontDefault)
-        this.doc.text(text.trim(), {
-            width: config.wrapperWidth??this.wrapperWidth,      // szerokość kolumny
-            align: config.align??'left',   // left / right / center / justify
-            lineGap: this.lineGap       // odstęp między liniami
+            this.doc.on('end', () => resolve(Buffer.concat(this.buffers)))
+            this.doc.on('error', reject)
         })
     }
-    writeBorderedLine(widths:any, aligns:any, texts:any, config:any={}) {
-        const {doc} = this
-        doc.font(config.font ?? this.textFont);
-        doc.fontSize(config.fontSize ?? this.fontDefault);
-        doc.fillColor(config.textColor ?? this.grayTextColor);
 
-        // Obsługa osobnych paddingów z zachowaniem fallbacków
-        const defaultPadding = config.padding ?? 6;
-        const paddingTop = config.paddingTop ?? defaultPadding;
-        const paddingBottom = config.paddingBottom ?? defaultPadding;
-        const paddingLeft = config.paddingLeft ?? defaultPadding;
-        const paddingRight = config.paddingRight ?? defaultPadding;
+    async toBuffer(): Promise<Buffer> {
+        this.doc.end()
+        return this.bufferPromise
+    }
 
-        const lineGap = config.lineGap ?? 2;
-        
-        // Jeśli szerokości są podane jako procenty (np. suma = 100)
-        const totalWidthConfig = widths.reduce((acc:any, val:any) => acc + val, 0);
-        const availableWidth = config.wrapperWidth ?? this.wrapperWidth;
-        
-        const absoluteWidths = widths.map((w:any) => {
-            if (totalWidthConfig <= 100) {
-                return (w / 100) * availableWidth;
-            }
-            return w; 
-        });
+    writeLine(text: string, config: LineConfig = {}): void {
+        this.doc.font(config.font ?? this.textFont)
+        this.doc.fillColor(this.grayTextColor)
+        this.doc.fontSize(config.fontSize ?? this.fontDefault)
+        this.doc.text(text.trim(), {
+            width: config.wrapperWidth ?? this.wrapperWidth,
+            align: config.align ?? 'left',
+            lineGap: this.lineGap,
+        })
+    }
 
-        // 1. Oblicz maksymalną wysokość wiersza na podstawie zawartości
-        let maxHeight = config.height ?? 0; 
-        
-        texts.forEach((text:any, index:any) => {
-            const colWidth = absoluteWidths[index];
-            const textWidth = colWidth - (paddingLeft + paddingRight);
-            const textHeight = doc.heightOfString(String(text).trim(), {
-                width: textWidth,
-                lineGap: lineGap
-            });
-            const totalCellHeight = textHeight + paddingTop + paddingBottom;
-            if (totalCellHeight > maxHeight) {
-                maxHeight = totalCellHeight;
-            }
-        });
+    writeBorderedLine(
+        widths: readonly number[],
+        aligns: TextAlignment | readonly TextAlignment[],
+        texts: readonly TextValue[],
+        config: BorderedLineConfig = {},
+    ): void {
+        this.validateRow(widths, aligns, texts, config)
 
-        // 2. Obsługa Page Break
-        const bottomMargin = doc.page.margins.bottom;
-        const pageHeight = doc.page.height;
-        
-        if (doc.y + maxHeight > pageHeight - bottomMargin) {
-            doc.addPage();
+        const { doc } = this
+        doc.font(config.font ?? this.textFont)
+        doc.fontSize(config.fontSize ?? this.fontDefault)
+        doc.fillColor(config.textColor ?? this.grayTextColor)
+
+        const padding = config.padding ?? 6
+        const paddingTop = config.paddingTop ?? padding
+        const paddingBottom = config.paddingBottom ?? padding
+        const paddingLeft = config.paddingLeft ?? padding
+        const paddingRight = config.paddingRight ?? padding
+        const lineGap = config.lineGap ?? 2
+        const columnWidths = this.resolveColumnWidths(widths, config.wrapperWidth ?? this.wrapperWidth)
+        const rowHeight = this.measureRowHeight(
+            columnWidths,
+            texts,
+            config.height ?? 0,
+            paddingTop,
+            paddingBottom,
+            paddingLeft,
+            paddingRight,
+            lineGap,
+        )
+
+        this.ensureSpace(rowHeight)
+
+        const startX = doc.x
+        const startY = doc.y
+        this.drawBorders(columnWidths, startX, startY, rowHeight, config)
+        this.drawCells(
+            columnWidths,
+            aligns,
+            texts,
+            startX,
+            startY,
+            rowHeight,
+            { paddingTop, paddingBottom, paddingLeft, paddingRight, lineGap },
+            config,
+        )
+
+        doc.y = startY + rowHeight + (config.rowGap ?? 0)
+    }
+
+    writeSpace(spaceHeight: number): void {
+        if (!Number.isFinite(spaceHeight)) {
+            throw new RangeError('Space height must be a finite number')
         }
 
-        // 3. Rysowanie ramek kolumn
-        let currentX = doc.x;
-        const startY = doc.y;
-        const totalRowWidth = absoluteWidths.reduce((a:any, b:any) => a + b, 0);
-
-        if (config.border !== false) {
-            const colorSource = config.borderColors ?? config.borderColor;
-
-            if (Array.isArray(colorSource)) {
-                texts.forEach((_:any, index:any) => {
-                    const colWidth = absoluteWidths[index];
-                    const colBorderColor = colorSource[index];
-
-                    if (colBorderColor !== null && colBorderColor !== false && colBorderColor !== undefined) {
-                        doc.save();
-                        
-                        // Ustawienie szerokości i koloru ramki tuż przed rysowaniem
-                        doc.lineWidth(config.borderWidth || 1);
-                        doc.strokeColor(colBorderColor); // Wymuszenie dokładnego koloru z tablicy
-                        
-                        doc.rect(currentX, startY, colWidth, maxHeight)
-                        .stroke();
-                        
-                        doc.restore();
-                    }
-                    currentX += colWidth;
-                });
-            } else {
-                const rowBorderColor = colorSource ?? '#cccccc';
-                if (rowBorderColor !== null && rowBorderColor !== false && rowBorderColor !== undefined) {
-                    doc.save();
-                    doc.lineWidth(config.borderWidth || 1);
-                    doc.strokeColor(rowBorderColor);
-                    
-                    doc.rect(currentX, startY, totalRowWidth, maxHeight)
-                    .stroke();
-                    
-                    doc.restore();
-                }
-            }
+        if (spaceHeight < 0) {
+            this.doc.y = Math.max(this.doc.page.margins.top, this.doc.y + spaceHeight)
+            return
         }
 
-        // 4. Wypisanie tekstów z opcjonalnym wyrównaniem do dołu (alignBottom)
-        currentX = doc.x;
-
-        texts.forEach((text:any, index:any) => {
-            const colWidth = absoluteWidths[index];
-            const textStr = String(text).trim();
-
-            let colAlign:any = 'left';
-            if (Array.isArray(aligns)) {
-                colAlign = aligns[index] ?? config.align ?? 'left';
-            } else if (typeof aligns === 'string') {
-                colAlign = aligns;
-            } else if (config.align) {
-                colAlign = config.align;
-            }
-
-            let textY = startY + paddingTop;
-            if (config.alignBottom && textStr !== '') {
-                const textWidth = colWidth - (paddingLeft + paddingRight);
-                const textHeight = doc.heightOfString(textStr, {
-                    width: textWidth,
-                    lineGap: lineGap
-                });
-                textY = startY + maxHeight - textHeight - paddingBottom;
-                if (textY < startY + paddingTop) {
-                    textY = startY + paddingTop;
-                }
-            }
-
-            doc.text(textStr, currentX + paddingLeft, textY, {
-                width: colWidth - (paddingLeft + paddingRight),
-                align: colAlign,
-                lineGap: lineGap
-            });
-
-            currentX += colWidth;
-        });
-
-        doc.y = startY + maxHeight;
-        
-        if (config.rowGap) {
-            doc.y += config.rowGap;
+        if (this.doc.y + spaceHeight > this.doc.page.height - this.doc.page.margins.bottom) {
+            this.doc.addPage()
+            this.doc.x = this.margin
+        } else {
+            this.doc.y += spaceHeight
         }
     }
 
-    writeSpace(spaceHeight:any) {
-        const {doc} = this
-        const bottomMargin = doc.page.margins.bottom;
-        const pageHeight = doc.page.height;
-        
-        // Sprawdzamy czy dodanie odstępu spowoduje wyjście poza margines dolny strony
-        if (doc.y + spaceHeight > pageHeight - bottomMargin) {
-            doc.addPage();
-            doc.x = this.margin; // Przywrócenie marginesu X dla nowej strony
-        } else {
-            doc.y += spaceHeight;
+    private validateRow(
+        widths: readonly number[],
+        aligns: TextAlignment | readonly TextAlignment[],
+        texts: readonly TextValue[],
+        config: BorderedLineConfig,
+    ): void {
+        if (widths.length === 0 || widths.length !== texts.length) {
+            throw new RangeError('Each text cell must have a corresponding column width')
         }
+        if (widths.some((width) => !Number.isFinite(width) || width <= 0)) {
+            throw new RangeError('Column widths must be positive finite numbers')
+        }
+        if (Array.isArray(aligns) && aligns.length !== texts.length) {
+            throw new RangeError('Each text cell must have a corresponding alignment')
+        }
+        for (const value of [
+            config.height,
+            config.padding,
+            config.paddingTop,
+            config.paddingBottom,
+            config.paddingLeft,
+            config.paddingRight,
+            config.rowGap,
+        ]) {
+            if (value !== undefined && (!Number.isFinite(value) || value < 0)) {
+                throw new RangeError('Row dimensions must be non-negative finite numbers')
+            }
+        }
+    }
+
+    private resolveColumnWidths(widths: readonly number[], availableWidth: number): number[] {
+        const totalWidth = widths.reduce((total, width) => total + width, 0)
+        return widths.map((width) => totalWidth <= 100 ? (width / 100) * availableWidth : width)
+    }
+
+    private measureRowHeight(
+        widths: readonly number[],
+        texts: readonly TextValue[],
+        minimumHeight: number,
+        paddingTop: number,
+        paddingBottom: number,
+        paddingLeft: number,
+        paddingRight: number,
+        lineGap: number,
+    ): number {
+        return texts.reduce<number>((height, text, index) => {
+            const textHeight = this.doc.heightOfString(String(text).trim(), {
+                width: widths[index] - paddingLeft - paddingRight,
+                lineGap,
+            })
+            return Math.max(height, textHeight + paddingTop + paddingBottom)
+        }, minimumHeight)
+    }
+
+    private ensureSpace(rowHeight: number): void {
+        if (this.doc.y + rowHeight > this.doc.page.height - this.doc.page.margins.bottom) {
+            this.doc.addPage()
+        }
+    }
+
+    private drawBorders(
+        widths: readonly number[],
+        x: number,
+        y: number,
+        height: number,
+        config: BorderedLineConfig,
+    ): void {
+        if (config.border === false) {
+            return
+        }
+
+        const colorSource = config.borderColors ?? config.borderColor
+        this.doc.save()
+        this.doc.lineWidth(config.borderWidth ?? 1)
+
+        if (Array.isArray(colorSource)) {
+            let currentX = x
+            widths.forEach((width, index) => {
+                const color = colorSource[index]
+                if (color !== null && color !== false && color !== undefined) {
+                    this.doc.strokeColor(color)
+                    this.doc.rect(currentX, y, width, height).stroke()
+                }
+                currentX += width
+            })
+        } else {
+            const color = colorSource ?? '#cccccc'
+            if (color !== false && color !== null) {
+                this.doc.strokeColor(color)
+                this.doc.rect(x, y, widths.reduce((sum, width) => sum + width, 0), height).stroke()
+            }
+        }
+
+        this.doc.restore()
+    }
+
+    private drawCells(
+        widths: readonly number[],
+        aligns: TextAlignment | readonly TextAlignment[],
+        texts: readonly TextValue[],
+        x: number,
+        y: number,
+        rowHeight: number,
+        padding: {
+            paddingTop: number
+            paddingBottom: number
+            paddingLeft: number
+            paddingRight: number
+            lineGap: number
+        },
+        config: BorderedLineConfig,
+    ): void {
+        let currentX = x
+        texts.forEach((text, index) => {
+            const textValue = String(text).trim()
+            const width = widths[index] - padding.paddingLeft - padding.paddingRight
+            const textHeight = this.doc.heightOfString(textValue, {
+                width,
+                lineGap: padding.lineGap,
+            })
+            const textY = config.alignBottom && textValue !== ''
+                ? Math.max(y + padding.paddingTop, y + rowHeight - textHeight - padding.paddingBottom)
+                : y + padding.paddingTop
+            const align = Array.isArray(aligns)
+                ? aligns[index] ?? config.align ?? 'left'
+                : aligns ?? config.align ?? 'left'
+
+            this.doc.text(textValue, currentX + padding.paddingLeft, textY, {
+                width,
+                align,
+                lineGap: padding.lineGap,
+            })
+            currentX += widths[index]
+        })
     }
 }
 
